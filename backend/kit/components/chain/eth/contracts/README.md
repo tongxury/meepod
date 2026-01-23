@@ -1,0 +1,1 @@
+abigen --abi=ERC721.abi.json --pkg=contracts --out=erc721.go --type ERC721 

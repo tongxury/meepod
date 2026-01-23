@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meepod 店主端 - 全量页面交互视觉手册</title>
+    <style>
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --accent: #f53a3a;
+            --blue: #346dfc;
+            --bg: #f8f9fa;
+            --text: #2d3436;
+            --phone-frame: #1e272e;
+            --success: #52c41a;
+            --warning: #faad14;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f2f5; color: var(--text); padding: 40px 20px; }
+        .doc-header { max-width: 1200px; margin: 0 auto 50px; text-align: center; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .doc-header h1 { color: var(--primary); font-size: 2.5em; margin-bottom: 10px; }
+        .module-section { max-width: 1400px; margin: 0 auto 80px; }
+        .module-title { font-size: 1.8em; margin-bottom: 30px; padding-left: 15px; border-left: 5px solid var(--primary); color: var(--secondary); }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 40px; }
+
+        /* 手机模型 */
+        .phone-mockup { width: 320px; height: 660px; background: white; border: 12px solid var(--phone-frame); border-radius: 40px; position: relative; margin: 0 auto; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.15); }
+        .phone-notch { width: 140px; height: 24px; background: var(--phone-frame); position: absolute; top: 0; left: 50%; transform: translateX(-50%); border-bottom-left-radius: 15px; border-bottom-right-radius: 15px; z-index: 10; }
+        .screen { flex: 1; display: flex; flex-direction: column; padding-top: 24px; font-size: 14px; background: #fff; }
+
+        /* UI 组件 */
+        .app-bar { height: 50px; display: flex; align-items: center; justify-content: center; font-weight: 600; border-bottom: 1px solid #eee; position: relative; }
+        .app-bar-back { position: absolute; left: 15px; color: var(--primary); }
+        .content { flex: 1; overflow-y: auto; background: #fafafa; }
+        .tab-bar { height: 60px; border-top: 1px solid #eee; display: flex; justify-content: space-around; align-items: center; background: #fff; }
+        .tab-item { display: flex; flex-direction: column; align-items: center; font-size: 10px; color: #95a5a6; }
+        .tab-item.active { color: var(--primary); }
+        .tab-icon { width: 22px; height: 22px; background: #eee; border-radius: 4px; margin-bottom: 2px; }
+        .active .tab-icon { background: var(--primary); }
+        .card { background: white; border-radius: 12px; padding: 15px; margin: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); border: 1px solid #f0f0f0; }
+        .btn-primary { background: var(--primary); color: white; padding: 10px; border-radius: 8px; text-align: center; font-weight: 600; margin: 10px; }
+        .badge { background: var(--accent); color: white; padding: 2px 6px; border-radius: 10px; font-size: 10px; margin-left: 5px; }
+
+        /* 彩票球样式 */
+        .ball { width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; margin: 1px; font-weight: bold; }
+        .ball-red { background: var(--accent); color: white; }
+        .ball-blue { background: var(--blue); color: white; }
+
+        .page-desc { margin-top: 20px; text-align: center; max-width: 320px; margin-left: auto; margin-right: auto; }
+        .page-desc h4 { color: var(--secondary); margin-bottom: 8px; }
+        .page-desc p { font-size: 13px; color: #666; line-height: 1.5; }
+
+        .status-tag { padding: 2px 8px; border-radius: 4px; font-size: 10px; color: white; }
+    </style>
+</head>
+<body>
+
+    <div class="doc-header">
+        <h1>🏪 Meepod 店主端全量页面</h1>
+        <p>基于 keeper 源代码构建 - 订单处理与店铺运营管理</p>
+    </div>
+
+    <!-- 第一部分：核心导航 -->
+    <div class="module-section">
+        <h2 class="module-title">01. 核心导航与大厅</h2>
+        <div class="grid-container">
+            <!-- 票务方案 -->
+            <div class="phone-wrapper">
+                <div class="phone-mockup">
+                    <div class="phone-notch"></div>
+                    <div class="screen">
+                        <div style="display:flex; border-bottom:1px solid #eee;">
+                            <div style="flex:1; text-align:center; padding:12px; border-bottom:2px solid var(--primary); font-weight:bold;">方案</div>
+                            <div style="flex:1; text-align:center; padding:12px; color:#999;">合买</div>
+                        </div>
+                        <div class="content">
+                            <div class="card">
+                                <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                                    <strong>双色球 第24018期</strong>
+                                    <span style="color:var(--warning); font-size:12px;">待出票</span>
+                                </div>
+                                <div style="display:flex; justify-content:space-between; font-size:11px; color:#666;">
+                                    <span>订单号: 10086...</span>
+                                    <span>2024-01-18 14:20</span>
+                                </div>
+                                <div style="display:flex; justify-content:space-between; margin-top:10px; border-top:1px solid #f9f9f9; padding-top:10px;">
+                                    <span>￥10.00</span>
+                                    <span style="color:var(--primary);">详情 ›</span>
+                                </div>
+                            </div>
+                            <!-- ... -->
+                        </div>
+                        <div class="tab-bar">
+                            <div class="tab-item active"><div class="tab-icon"></div>票务</div>
+                            <div class="tab-item"><div class="tab-icon"></div>账本</div>
+                            <div class="tab-item"><div class="tab-icon"></div>推广</div>
+                            <div class="tab-item"><div class="tab-icon"></div>我的</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-desc">
+                    <h4>票务方案 (Ticket)</h4>
+                    <p>店主最核心的页面，处理用户的选号订单与合买方案。对应 `Ticket/index.tsx`。</p>
+                </div>
+            </div>
+
+            <!-- 账本首页 -->
+            <div class="phone-wrapper">
+                <div class="phone-mockup">
+                    <div class="phone-notch"></div>
+                    <div class="screen">
+                        <div style="display:flex; border-bottom:1px solid #eee;">
+                            <div style="flex:1; text-align:center; padding:12px; border-bottom:2px solid var(--primary); font-weight:bold;">账本</div>
+                            <div style="flex:1; text-align:center; padding:12px; color:#999;">提现</div>
+                            <div style="flex:1; text-align:center; padding:12px; color:#999;">兑奖</div>
+                        </div>
+                        <div class="content">
+                            <div class="card">
+                                <div style="display:flex; justify-content:space-between;">
+                                    <div><strong>出票收入</strong><br><span style="font-size:11px; color:#999;">2024-01-18 10:22</span></div>
+                                    <strong style="color:var(--success);">+10.00</strong>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-bar">
+                            <div class="tab-item"><div class="tab-icon"></div>票务</div>
+                            <div class="tab-item active"><div class="tab-icon"></div>账本</div>
+                            <div class="tab-item"><div class="tab-icon"></div>推广</div>
+                            <div class="tab-item"><div class="tab-icon"></div>我的</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-desc">
+                    <h4>账本大厅 (Account)</h4>
+                    <p>管理店铺流水、用户提现审核及中奖兑奖处理。对应 `Account/index.tsx`。</p>
+                </div>
+            </div>
+
+            <!-- 推广首页 -->
+            <div class="phone-wrapper">
+                <div class="phone-mockup">
+                    <div class="phone-notch"></div>
+                    <div class="screen">
+                        <div style="display:flex; border-bottom:1px solid #eee;">
+                            <div style="flex:1; text-align:center; padding:12px; border-bottom:2px solid var(--primary); font-weight:bold;">推广员</div>
+                            <div style="flex:1; text-align:center; padding:12px; color:#999;">佣金结算</div>
+                        </div>
+                        <div class="content">
+                            <div class="card">
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <div><strong>王店长</strong><br><span style="font-size:11px; color:#999;">邀请码: 882201</span></div>
+                                    <div style="text-align:right;"><span style="color:var(--primary);">￥1,560.00</span><br><span style="font-size:11px; color:#999;">累计推广额</span></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-bar">
+                            <div class="tab-item"><div class="tab-icon"></div>票务</div>
+                            <div class="tab-item"><div class="tab-icon"></div>账本</div>
+                            <div class="tab-item active"><div class="tab-icon"></div>推广</div>
+                            <div class="tab-item"><div class="tab-icon"></div>我的</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-desc">
+                    <h4>推广中心 (Proxy)</h4>
+                    <p>管理店铺旗下的推广员（代理）及其佣金结算明细。对应 `Proxy/index.tsx`。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 第二部分：详情与操作 -->
+    <div class="module-section">
+        <h2 class="module-title">02. 业务处理详情</h2>
+        <div class="grid-container">
+            <!-- 方案详情 -->
+            <div class="phone-wrapper">
+                <div class="phone-mockup">
+                    <div class="phone-notch"></div>
+                    <div class="screen">
+                        <div class="app-bar"><span class="app-bar-back">‹</span>方案详情</div>
+                        <div class="content">
+                            <div class="card">
+                                <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                                    <strong>双色球 24018期</strong>
+                                    <span style="color:#999;">2024-01-18 14:20</span>
+                                </div>
+                                <div style="display:flex; gap:5px; margin-bottom:10px;">
+                                    <span class="status-tag" style="background:var(--primary);">单式</span>
+                                    <span class="status-tag" style="background:var(--success);">自选</span>
+                                </div>
+                                <div style="font-size:12px;">方案总金额: <strong style="color:var(--accent);">￥10.00 (5倍)</strong></div>
+                            </div>
+                            <div class="card">
+                                <p style="font-size:12px; color:#999; margin-bottom:10px;">投注内容</p>
+                                <div style="border-left:2px solid #eee; padding-left:10px;">
+                                    <div class="ball ball-red">02</div><div class="ball ball-red">05</div><div class="ball ball-red">12</div><div class="ball ball-red">21</div><div class="ball ball-red">28</div><div class="ball ball-red">31</div> | <div class="ball ball-blue">07</div>
+                                </div>
+                            </div>
+                            <div class="card" style="text-align:center;">
+                                <div style="height:100px; background:#f0f0f0; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#999; border:1px dashed #ccc;">
+                                    尚未出票照片
+                                </div>
+                            </div>
+                        </div>
+                        <div class="btn-primary" style="margin:15px; background:var(--success);">去出票</div>
+                    </div>
+                </div>
+                <div class="page-desc">
+                    <h4>订单详情 (Order Detail)</h4>
+                    <p>店主查看选号明细，并进行“拍照出票”上传的核心环节。对应 `Order/Detail.tsx`。</p>
+                </div>
+            </div>
+
+            <!-- 我的/设置 -->
+            <div class="phone-wrapper">
+                <div class="phone-mockup">
+                    <div class="phone-notch"></div>
+                    <div class="screen">
+                        <div class="content" style="padding:0;">
+                            <div style="background:var(--primary); padding:40px 20px 30px; color:white; text-align:center;">
+                                <div style="width:70px; height:70px; background:rgba(255,255,255,0.2); border-radius:50%; margin:0 auto 10px; border:2px solid white;"></div>
+                                <strong style="font-size:18px;">Meepod 官方彩票店</strong>
+                                <p style="font-size:12px; opacity:0.8;">邀请码: 10086 ›</p>
+                            </div>
+                            <div class="card" style="margin-top:-15px; border:none; box-shadow:0 8px 15px rgba(0,0,0,0.05);">
+                                <div style="font-size:12px; color:#999;">店铺余额 (元)</div>
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
+                                    <strong style="font-size:24px; color:var(--accent);">15,280.50</strong>
+                                    <div style="display:flex; gap:8px;">
+                                        <div style="background:#f0f2f5; padding:4px 12px; border-radius:15px; font-size:12px;">明细</div>
+                                        <div style="background:var(--primary); color:white; padding:4px 12px; border-radius:15px; font-size:12px;">充值</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="padding:10px 15px; display:grid; grid-template-columns:repeat(4,1fr); text-align:center; gap:10px;">
+                                <div><div style="font-size:20px;">👤</div><div style="font-size:10px;">基本信息</div></div>
+                                <div><div style="font-size:20px;">📢</div><div style="font-size:10px;">店铺公告</div></div>
+                                <div><div style="font-size:20px;">💬</div><div style="font-size:10px;">联系客服</div></div>
+                                <div><div style="font-size:20px;">⚠️</div><div style="font-size:10px;">用户投诉<span class="badge">2</span></div></div>
+                            </div>
+                        </div>
+                        <div class="tab-bar">
+                            <div class="tab-item"><div class="tab-icon"></div>票务</div>
+                            <div class="tab-item"><div class="tab-icon"></div>账本</div>
+                            <div class="tab-item"><div class="tab-icon"></div>推广</div>
+                            <div class="tab-item active"><div class="tab-icon"></div>我的</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-desc">
+                    <h4>店主中心 (Profile)</h4>
+                    <p>管理店铺信息、公告、资金余额及客户投诉。对应 `Profile/index.tsx`。</p>
+                </div>
+            </div>
+
+            <!-- 注册页 -->
+            <div class="phone-wrapper">
+                <div class="phone-mockup">
+                    <div class="phone-notch"></div>
+                    <div class="screen">
+                        <div class="app-bar"><span class="app-bar-back">‹</span>店主注册</div>
+                        <div class="content" style="padding:20px;">
+                            <div style="border-bottom:1px solid #eee; padding:15px 0;">
+                                <span style="font-size:12px; color:#999;">店铺名称</span><br>输入您的店铺全称
+                            </div>
+                            <div style="border-bottom:1px solid #eee; padding:15px 0;">
+                                <span style="font-size:12px; color:#999;">邀请码</span><br>如果没有可不填
+                            </div>
+                            <div style="border-bottom:1px solid #eee; padding:15px 0;">
+                                <span style="font-size:12px; color:#999;">手机号</span><br>请输入手机号
+                            </div>
+                            <div style="border-bottom:1px solid #eee; padding:15px 0;">
+                                <span style="font-size:12px; color:#999;">登录密码</span><br>请设置登录密码
+                            </div>
+                            <div class="btn-primary" style="margin:40px 0 0 0;">申请入驻</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-desc">
+                    <h4>入驻申请 (Register)</h4>
+                    <p>新店主申请开通 Meepod 服务的流程。对应 `Register/index.tsx`。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer style="margin-top:100px; text-align:center; padding:40px; border-top:1px solid #ddd; color:#888;">
+        <p>&copy; 2026 Meepod Keeper. 店主管理端功能手册</p>
+    </footer>
+
+</body>
+</html>

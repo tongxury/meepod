@@ -1,0 +1,16 @@
+.idea
+**/**.iml
+logs
+**/**/.DS_Store
+**/**/go.sum
+bin
+.history/
+.vscode/*.log
+.vscode/*_bin
+
+opt/*.tar
+opt/*.zip
+
+**/**/dist
+opt/**/**.zip
+opt/**/**.tar

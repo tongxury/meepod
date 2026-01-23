@@ -1,0 +1,160 @@
+version: '3.0'
+services:
+
+  shop_nginx:
+    container_name: shop_nginx
+    build:
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./dist/keeper:/keeper
+      - ./dist/user:/user
+      - ./dist/admin:/admin
+    restart: always
+    ports:
+      - "80:80"
+
+  shop_admin_rest:
+    image: ubuntu:24.04
+    container_name: shop_admin_rest
+    restart: always
+    hostname: shop_admin_rest_host
+    volumes:
+      - shop_admin_rest-logs:/logs/
+      - ./dist/backend/shop_admin_rest:/dist/shop_admin_rest
+    entrypoint:
+      - /dist/shop_admin_rest
+      - --srv.port=6666
+      - --log.output=file
+      - --log.filename=/logs/%level-%Y-%m-%d.log
+      - --repo.pg.address=pg_host:5432
+      - --repo.pg.password=uB59TpZqZD
+      - --repo.redis.addr=redis_host:6379
+      - --repo.redis.password=EcN3RBrjcW
+      - --log.level=debug
+  shop_pay_rest:
+    image: ubuntu:24.04
+    container_name: shop_pay_rest
+    restart: always
+    hostname: shop_pay_rest_host
+    volumes:
+      - shop_pay_rest-logs:/logs/
+      - ./dist/backend/shop_pay_rest:/dist/shop_pay_rest
+    entrypoint:
+      - /dist/shop_pay_rest
+      - --domain=http://api.lottery.local
+      - --srv.port=6868
+      - --srv.test=true
+      - --log.output=file
+      - --log.filename=/logs/%level-%Y-%m-%d.log
+      - --repo.pg.address=pg_host:5432
+      - --repo.pg.password=uB59TpZqZD
+      - --repo.redis.addr=redis_host:6379
+      - --repo.redis.password=EcN3RBrjcW
+      - --log.level=debug
+
+  shop_pay_worker:
+    image: ubuntu:24.04
+    container_name: shop_pay_worker
+    restart: always
+    volumes:
+      - shop_pay_worker-logs:/logs/
+      - ./dist/backend/shop_pay_worker:/dist/shop_pay_worker
+    entrypoint:
+      - /dist/shop_pay_worker
+      - --log.output=file
+      - --log.filename=/logs/%level-%Y-%m-%d.log
+      - --repo.pg.address=pg_host:5432
+      - --repo.pg.password=uB59TpZqZD
+      - --repo.redis.addr=redis_host:6379
+      - --repo.redis.password=EcN3RBrjcW
+      - --log.level=debug
+
+  shop_rest:
+    image: ubuntu:24.04
+    container_name: shop_rest
+    restart: always
+    hostname: shop_rest_host
+    volumes:
+      - shop_rest-logs:/logs/
+      - ./dist/backend/shop_rest:/dist/shop_rest
+    entrypoint:
+      - /dist/shop_rest
+      - --srv.port=6868
+      - --srv.test=true
+      - --log.output=file
+      - --log.filename=/logs/%level-%Y-%m-%d.log
+      - --repo.pg.address=pg_host:5432
+      - --repo.pg.password=uB59TpZqZD
+      - --repo.redis.addr=redis_host:6379
+      - --repo.redis.password=EcN3RBrjcW
+      - --ali.sms.templateCode=SMS_154950909
+      - --ali.sms.sign=阿里云短信测试
+      - --log.level=debug
+
+  shop_worker:
+    image: ubuntu:24.04
+    container_name: shop_worker
+    restart: always
+    volumes:
+      - shop_worker-logs:/logs/
+      - ./dist/backend/shop_worker:/dist/shop_worker
+    entrypoint:
+      - /dist/shop_worker
+      - --prize.cron=@every 10s
+      - --normal.cron=@every 5m
+      - --proxy.pool.url=http://proxy_pool_host:5010
+      - --log.output=file
+      - --log.filename=/logs/%level-%Y-%m-%d.log
+      - --repo.pg.address=pg_host:5432
+      - --repo.pg.password=uB59TpZqZD
+      - --repo.redis.addr=redis_host:6379
+      - --repo.redis.password=EcN3RBrjcW
+      - --log.level=debug
+
+  shop_db:
+    image: postgres:14.5-alpine3.16
+    container_name: shop_db
+    restart: unless-stopped
+    ports:
+      - "6873:5432"
+    environment:
+      - POSTGRES_PASSWORD=uB59TpZqZD
+    volumes:
+      - shop_postgres-data:/var/lib/postgresql/data/
+    hostname: pg_host
+
+  shop_redis:
+    image: bitnami/redis
+    container_name: shop_redis
+    restart: unless-stopped
+    ports:
+      - "6872:6379"
+    volumes:
+      - shop_redis-data:/bitnami/redis/data:rw
+    environment:
+      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL,CONFIG,KEYS,SCAN
+      - REDIS_PASSWORD=EcN3RBrjcW
+      - REDIS_PORT_NUMBER=6379
+    hostname: redis_host
+
+#  proxy_pool:
+#    image: jhao104/proxy_pool
+#    container_name: proxy_pool
+#    restart: always
+#    environment:
+#      - DB_CONN=redis://:EcN3RBrjcW@redis_host:6379/1
+#    hostname:
+#      proxy_pool_host
+#    ports:
+#      - "127.0.0.1:5010:5010"
+
+
+
+volumes:
+  shop_redis-data:
+  shop_postgres-data:
+  shop_pay_rest-logs:
+  shop_pay_worker-logs:
+  shop_worker-logs:
+  shop_rest-logs:
+  shop_admin_rest-logs:

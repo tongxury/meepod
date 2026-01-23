@@ -1,0 +1,5 @@
+FROM centos:7
+
+ARG SERVER_NAME
+
+COPY ./dist/${SERVER_NAME} /app/${SERVER_NAME}
