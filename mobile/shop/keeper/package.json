@@ -13,7 +13,8 @@
     "build:web:production": "ENV=production npx expo export:web --clear",
     "build:test:local": "eas build --local --profile test --platform android",
     "build:test": "eas build --profile test --platform android",
-    "build:web": "npx expo export:web --clear"
+    "build:web": "npx expo export:web --clear",
+    "build:production": "eas build --profile production --platform android"
   },
   "dependencies": {
     "@ant-design/react-native": "^5.0.4",

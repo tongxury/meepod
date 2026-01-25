@@ -27,7 +27,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
     ios: {
         supportsTablet: true,
-        distribution: 'store',
+        // distribution: 'store',
         bundleIdentifier: "com.lottery.client",
         config: {
 

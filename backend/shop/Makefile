@@ -1,15 +1,5 @@
 export GOPROXY=https://goproxy.cn/
 
-
-
-default:
-	@rm -rf dist && mkdir dist
-	@rm /Users/tongxu/go/bin/linux_amd64/shop*
-	@make build
-	@cp -rf /Users/tongxu/go/bin/linux_amd64/shop* ./dist
-	@rm -rf  /Users/tongxu/Projects/meepod/opt/projects/shop/dist/backend/ && mkdir -p /Users/tongxu/Projects/meepod/opt/projects/shop/dist/backend/
-	@cp -rf /Users/tongxu/go/bin/linux_amd64/shop* /Users/tongxu/Projects/meepod/opt/projects/shop/dist/backend/
-
 release:
 	@make docker-build
 	@make docker-push

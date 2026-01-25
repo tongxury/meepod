@@ -11,21 +11,22 @@ export const Config = () => {
         version: version,
         // apiUrl: 'http://192.168.1.102:8080',
         // apiPaymentUrl: 'http://192.168.1.102:6066',
-        apiUrl: 'https://x.veogo.ai',
-        apiPaymentUrl: 'https://x.veogo.ai',
+        apiUrl: 'https://x.lansess.com',
+        apiPaymentUrl: 'https://x.lansess.com',
     }
 
     const testConfig = {
         env: 'test',
         version: version,
-        apiUrl: 'https://x.veogo.ai',
+        apiUrl: 'https://x.lansess.com',
     }
 
     const productionConfig = {
         env: 'production',
         version: version,
         // apiUrl: 'https://api.lottery.local',
-        apiUrl: 'https://x.veogo.ai',
+        apiUrl: 'https://x.lansess.com',
+        apiPaymentUrl: 'https://x.lansess.com',
 
     }
 

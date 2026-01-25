@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strings"
 	"time"
 
 	"gitee.com/meepo/backend/kit/components/comp"
@@ -25,7 +24,8 @@ func (t *Service) SendCode(ctx context.Context, phone, category, sign, templateC
 
 	code := mathd.RandNumber(1000, 9999)
 
-	isTest := strings.HasPrefix(phone, testPrefix)
+	// isTest := strings.HasPrefix(phone, testPrefix)
+	isTest := true
 
 	if !isTest {
 		//resp, err := comp.SDK().AliSMS().Send(ctx, []string{phone}, conv.String(code), sign, templateCode)
