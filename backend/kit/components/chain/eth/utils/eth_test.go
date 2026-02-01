@@ -2,10 +2,11 @@ package ethutils
 
 import (
 	"fmt"
-	"gitee.com/meepo/backend/kit/components/chain/eth/utils/hdwallet"
-	"github.com/tyler-smith/go-bip39"
 	"log"
 	"testing"
+
+	"gitee.com/meepo/backend/kit/components/chain/eth/utils/hdwallet"
+	"github.com/tyler-smith/go-bip39"
 )
 
 func TestGenerateRandomAddress(t *testing.T) {
@@ -30,7 +31,7 @@ func TestGenerateByMnemonic(t *testing.T) {
 	////var mnemonic = "pepper hair process town say voyage exhibit over carry property follow define"
 	//fmt.Println("mnemonic:", mnemonic)
 	//mnemonic = "jeans bitter notice collect exchange critic uncover vintage october grab dust meat"
-	mnemonic := "落 霞 与 孤 鹜 齐 飞 秋 水 共 长 天 一 色"
+	mnemonic := ""
 
 	seed := bip39.NewSeed(mnemonic, "") //这里可以选择传入指定密码或者空字符串，不同密码生成的助记词不同
 
@@ -39,7 +40,7 @@ func TestGenerateByMnemonic(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	path := hdwallet.MustParseDerivationPath("m/44'/60'/0'/0/1000") //最后一位是同一个助记词的地址id，从0开始，相同助记词可以生产无限个地址
+	path := hdwallet.MustParseDerivationPath("m/44'/60'/0'/0/1001") //最后一位是同一个助记词的地址id，从0开始，相同助记词可以生产无限个地址
 	account, err := wallet.Derive(path, false)
 	if err != nil {
 		log.Fatal(err)
