@@ -2,25 +2,38 @@ package lottery
 
 import (
 	"fmt"
+	"strings"
+	"time"
+
 	"gitee.com/meepo/backend/kit/components/sdk/conv"
 	"gitee.com/meepo/backend/kit/components/sdk/helper/timed"
 	"gitee.com/meepo/backend/kit/components/sdk/xerror"
 	"gitee.com/meepo/backend/shop/core/enum"
 	"gitee.com/meepo/backend/shop/core/helper"
 	"gitee.com/meepo/backend/shop/core/issue/types"
-	"strings"
-	"time"
 )
 
 type Adapter struct {
 }
 
+// sportteryHeaders 返回访问 sporttery.cn 所需的请求头，避免被 EdgeOne 安全策略拦截
+func (a Adapter) sportteryHeaders() map[string]string {
+	return map[string]string{
+		"User-Agent":      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+		"Accept":          "application/json, text/plain, */*",
+		"Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
+		"Referer":         "https://www.sporttery.cn/",
+		"Origin":          "https://www.sporttery.cn",
+	}
+}
+
 func (a Adapter) ListZjcMatches(index string) (types.Matches, error) {
 	//url := "https://webapi.sporttery.cn/gateway/jc/football/getMatchListV1.qry?clientCode=3001"
 
-	url := "https://webapi.sporttery.cn/gateway/jc/football/getMatchCalculatorV1.qry?poolCode=&channel=c"
+	//url := "https://webapi.sporttery.cn/gateway/jc/football/getMatchCalculatorV1.qry?poolCode=&channel=c"
+	url := "https://webapi.sporttery.cn/gateway/uniform/football/getMatchListV1.qry?clientCode=3001"
 
-	resultBytes, err := new(helper.Http).Get(url, true)
+	resultBytes, err := new(helper.Http).Get(url, true, a.sportteryHeaders())
 
 	if err != nil {
 		return nil, xerror.Wrap(err)
@@ -41,7 +54,12 @@ func (a Adapter) ListZjcMatches(index string) (types.Matches, error) {
 	for _, xx := range result.Value.MatchInfoList {
 		for _, x := range xx.SubMatchList {
 
-			startAt, _ := time.ParseInLocation(time.DateTime, x.MatchDate+" "+x.MatchTime, timed.LocAsiaShanghai)
+			// 新 API 的 matchTime 格式是 HH:mm，需要补上秒数
+			matchTimeStr := x.MatchTime
+			if len(matchTimeStr) == 5 { // HH:mm 格式
+				matchTimeStr = matchTimeStr + ":00"
+			}
+			startAt, _ := time.ParseInLocation(time.DateTime, x.MatchDate+" "+matchTimeStr, timed.LocAsiaShanghai)
 
 			y := types.Match{
 				League:       x.LeagueAllName,
@@ -56,19 +74,34 @@ func (a Adapter) ListZjcMatches(index string) (types.Matches, error) {
 				Status:       enum.MatchStatus_UnStart.Value,
 			}
 
+			// 从 oddsList 中获取赔率
+			var hadH, hadD, hadA string
+			var hhadH, hhadD, hhadA, hhadGoalLine string
+			for _, odds := range x.OddsList {
+				switch odds.PoolCode {
+				case "HAD":
+					hadH, hadD, hadA = odds.H, odds.D, odds.A
+				case "HHAD":
+					hhadH, hhadD, hhadA, hhadGoalLine = odds.H, odds.D, odds.A, odds.GoalLine
+				}
+			}
+
 			y.Odds.Items = append(y.Odds.Items,
-				types.OddsItem{Name: "主胜", Result: "3", Value: conv.Float64(x.Had.H)},
-				types.OddsItem{Name: "平局", Result: "1", Value: conv.Float64(x.Had.D)},
-				types.OddsItem{Name: "客胜", Result: "0", Value: conv.Float64(x.Had.A)},
+				types.OddsItem{Name: "主胜", Result: "3", Value: conv.Float64(hadH)},
+				types.OddsItem{Name: "平局", Result: "1", Value: conv.Float64(hadD)},
+				types.OddsItem{Name: "客胜", Result: "0", Value: conv.Float64(hadA)},
 			)
 
-			y.RCount = conv.Int(x.Hhad.GoalLine[1:])
+			if hhadGoalLine != "" && len(hhadGoalLine) > 1 {
+				y.RCount = conv.Int(hhadGoalLine[1:])
+			}
 			y.Odds.RItems = append(y.Odds.RItems,
-				types.OddsItem{Name: "让球主胜", Result: "3", Value: conv.Float64(x.Hhad.H)},
-				types.OddsItem{Name: "让球平", Result: "1", Value: conv.Float64(x.Hhad.D)},
-				types.OddsItem{Name: "让球客胜", Result: "0", Value: conv.Float64(x.Hhad.A)},
+				types.OddsItem{Name: "让球主胜", Result: "3", Value: conv.Float64(hhadH)},
+				types.OddsItem{Name: "让球平", Result: "1", Value: conv.Float64(hhadD)},
+				types.OddsItem{Name: "让球客胜", Result: "0", Value: conv.Float64(hhadA)},
 			)
 
+			// 新 API 中 HAFU/CRS/TTG 的详细赔率在 oddsList 中可能为空，保留原有结构但值为空
 			y.Odds.HalfFullItems = append(y.Odds.HalfFullItems,
 				types.OddsItem{Name: "胜胜", Result: "3-3", Value: conv.Float64(x.Hafu.Hh)},
 				types.OddsItem{Name: "胜平", Result: "3-1", Value: conv.Float64(x.Hafu.Hd)},
@@ -143,7 +176,7 @@ func (a Adapter) ListZjcMatchResults(index string) (types.Matches, types.PrizeGr
 	url := "https://webapi.sporttery.cn/gateway/jc/football/getMatchResultV1.qry?matchPage=1&matchBeginDate=%s&matchEndDate=%s&leagueId=&pageSize=30&pageNo=1&isFix=0&pcOrWap=1"
 	url = fmt.Sprintf(url, index, index)
 
-	resultBytes, err := new(helper.Http).Get(url, true)
+	resultBytes, err := new(helper.Http).Get(url, true, a.sportteryHeaders())
 
 	if err != nil {
 		return nil, nil, xerror.Wrap(err)
@@ -249,7 +282,7 @@ func (a Adapter) ListZ14Matches(index string) (types.Matches, error) {
 
 	url = fmt.Sprintf(url, index)
 
-	resultBytes, err := new(helper.Http).Get(url, true)
+	resultBytes, err := new(helper.Http).Get(url, true, a.sportteryHeaders())
 
 	if err != nil {
 		return nil, xerror.Wrap(err)
@@ -316,7 +349,7 @@ func (a Adapter) ListZ14MatchResults(index string) (types.Matches, types.PrizeGr
 	url := "https://webapi.sporttery.cn/gateway/lottery/getFootBallDrawInfoByDrawNumV1.qry?isVerify=1&lotteryGameNum=90&lotteryDrawNum=%s"
 	url = fmt.Sprintf(url, index)
 
-	resultBytes, err := new(helper.Http).Get(url, true)
+	resultBytes, err := new(helper.Http).Get(url, true, a.sportteryHeaders())
 
 	if err != nil {
 		return nil, nil, xerror.Wrap(err)

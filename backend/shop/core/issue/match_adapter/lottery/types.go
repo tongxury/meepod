@@ -54,28 +54,64 @@ type ZcMatchesResponse struct {
 	ErrorMessage string `json:"errorMessage"`
 	Success      bool   `json:"success"`
 	Value        struct {
-		VtoolsConfig struct {
-			OffLineSaleStatus  int    `json:"offLineSaleStatus"`
-			OffLineStopMessage string `json:"offLineStopMessage"`
-			OnLineSaleStatus   int    `json:"onLineSaleStatus"`
-			OnLineStopMessage  string `json:"onLineStopMessage"`
-		} `json:"vtoolsConfig"`
 		MatchInfoList []struct {
 			BusinessDate string `json:"businessDate"`
 			SubMatchList []struct {
-				AwayRank          string `json:"awayRank"`
-				AwayTeamAbbEnName string `json:"awayTeamAbbEnName"`
-				AwayTeamAbbName   string `json:"awayTeamAbbName"`
-				AwayTeamAllName   string `json:"awayTeamAllName"`
-				AwayTeamCode      string `json:"awayTeamCode"`
-				AwayTeamId        int    `json:"awayTeamId"`
-				BackColor         string `json:"backColor"`
-				BaseAwayTeamId    int    `json:"baseAwayTeamId"`
-				BaseHomeTeamId    int    `json:"baseHomeTeamId"`
-				BettingAllUp      int    `json:"bettingAllUp"`
-				BettingSingle     int    `json:"bettingSingle"`
-				BusinessDate      string `json:"businessDate"`
-				Crs               struct {
+				AwayTeamAbbName string `json:"awayTeamAbbName"`
+				AwayTeamAllName string `json:"awayTeamAllName"`
+				AwayTeamCode    string `json:"awayTeamCode"`
+				AwayTeamId      int    `json:"awayTeamId"`
+				BackColor       string `json:"backColor"`
+				BusinessDate    string `json:"businessDate"`
+				HomeTeamAbbName string `json:"homeTeamAbbName"`
+				HomeTeamAllName string `json:"homeTeamAllName"`
+				HomeTeamCode    string `json:"homeTeamCode"`
+				HomeTeamId      int    `json:"homeTeamId"`
+				LeagueAbbName   string `json:"leagueAbbName"`
+				LeagueAllName   string `json:"leagueAllName"`
+				LeagueId        string `json:"leagueId"`
+				LineNum         string `json:"lineNum"`
+				MatchDate       string `json:"matchDate"`
+				MatchId         int    `json:"matchId"`
+				MatchName       string `json:"matchName"`
+				MatchNum        int    `json:"matchNum"`
+				MatchNumDate    string `json:"matchNumDate"`
+				MatchNumStr     string `json:"matchNumStr"`
+				MatchStatus     string `json:"matchStatus"`
+				MatchTime       string `json:"matchTime"`
+				MatchWeek       string `json:"matchWeek"`
+				Weekday         string `json:"weekday"`
+				Remark          string `json:"remark"`
+				SellStatus      string `json:"sellStatus"`
+				PoolStatus      string `json:"poolStatus"`
+				OddsList        []struct {
+					A             string `json:"a"`
+					D             string `json:"d"`
+					H             string `json:"h"`
+					GoalLine      string `json:"goalLine"`
+					GoalLineF     string `json:"goalLineF"`
+					GoalLineValue string `json:"goalLineValue"`
+					MatchId       int    `json:"matchId"`
+					MatchNum      int    `json:"matchNum"`
+					Odds          string `json:"odds"`
+					PoolCode      string `json:"poolCode"`
+					PoolId        int    `json:"poolId"`
+					UpdateDate    string `json:"updateDate"`
+					UpdateTime    string `json:"updateTime"`
+				} `json:"oddsList"`
+				PoolList []struct {
+					CbtAllUp      int    `json:"cbtAllUp"`
+					CbtSingle     int    `json:"cbtSingle"`
+					CbtValue      int    `json:"cbtValue"`
+					IntAllUp      int    `json:"intAllUp"`
+					IntSingle     int    `json:"intSingle"`
+					IntValue      int    `json:"intValue"`
+					PoolCode      string `json:"poolCode"`
+					PoolPrimaryId int    `json:"poolPrimaryId"`
+					PoolStatus    string `json:"poolStatus"`
+				} `json:"poolList"`
+				// 保留旧字段以兼容可能的旧数据格式
+				Crs struct {
 					GoalLine   string `json:"goalLine"`
 					S00S00     string `json:"s00s00"`
 					S00S00F    string `json:"s00s00f"`
@@ -142,8 +178,7 @@ type ZcMatchesResponse struct {
 					UpdateDate string `json:"updateDate"`
 					UpdateTime string `json:"updateTime"`
 				} `json:"crs"`
-				GroupName string `json:"groupName"`
-				Had       struct {
+				Had struct {
 					A          string `json:"a,omitempty"`
 					Af         string `json:"af,omitempty"`
 					D          string `json:"d,omitempty"`
@@ -189,72 +224,7 @@ type ZcMatchesResponse struct {
 					UpdateDate string `json:"updateDate"`
 					UpdateTime string `json:"updateTime"`
 				} `json:"hhad"`
-				HomeRank          string `json:"homeRank"`
-				HomeTeamAbbEnName string `json:"homeTeamAbbEnName"`
-				HomeTeamAbbName   string `json:"homeTeamAbbName"`
-				HomeTeamAllName   string `json:"homeTeamAllName"`
-				HomeTeamCode      string `json:"homeTeamCode"`
-				HomeTeamId        int    `json:"homeTeamId"`
-				IsHide            int    `json:"isHide"`
-				IsHot             int    `json:"isHot"`
-				LeagueAbbName     string `json:"leagueAbbName"`
-				LeagueAllName     string `json:"leagueAllName"`
-				LeagueCode        string `json:"leagueCode"`
-				LeagueId          int    `json:"leagueId"`
-				LineNum           string `json:"lineNum"`
-				MatchDate         string `json:"matchDate"`
-				MatchId           int    `json:"matchId"`
-				MatchName         string `json:"matchName"`
-				MatchNum          int    `json:"matchNum"`
-				MatchNumStr       string `json:"matchNumStr"`
-				MatchStatus       string `json:"matchStatus"`
-				MatchTime         string `json:"matchTime"`
-				MatchWeek         string `json:"matchWeek"`
-				OddsList          []struct {
-					A          string `json:"a"`
-					D          string `json:"d"`
-					GoalLine   string `json:"goalLine"`
-					GoalLineF  string `json:"goalLineF"`
-					H          string `json:"h"`
-					MatchId    int    `json:"matchId"`
-					MatchNum   int    `json:"matchNum"`
-					Odds       string `json:"odds"`
-					PoolCode   string `json:"poolCode"`
-					PoolId     int    `json:"poolId"`
-					UpdateDate string `json:"updateDate"`
-					UpdateTime string `json:"updateTime"`
-				} `json:"oddsList"`
-				PoolList []struct {
-					AllUp             int    `json:"allUp"`
-					BettingAllup      int    `json:"bettingAllup"`
-					BettingSingle     int    `json:"bettingSingle"`
-					CbtAllUp          int    `json:"cbtAllUp"`
-					CbtSingle         int    `json:"cbtSingle"`
-					CbtValue          int    `json:"cbtValue"`
-					FixedOddsgoalLine string `json:"fixedOddsgoalLine"`
-					IntAllUp          int    `json:"intAllUp"`
-					IntSingle         int    `json:"intSingle"`
-					IntValue          int    `json:"intValue"`
-					MatchId           int    `json:"matchId"`
-					MatchNum          int    `json:"matchNum"`
-					PoolCloseDate     string `json:"poolCloseDate"`
-					PoolCloseTime     string `json:"poolCloseTime"`
-					PoolCode          string `json:"poolCode"`
-					PoolId            int    `json:"poolId"`
-					PoolOddsType      string `json:"poolOddsType"`
-					PoolStatus        string `json:"poolStatus"`
-					SellInitialDate   string `json:"sellInitialDate"`
-					SellInitialTime   string `json:"sellInitialTime"`
-					Single            int    `json:"single"`
-					UpdateDate        string `json:"updateDate"`
-					UpdateTime        string `json:"updateTime"`
-					VbtAllUp          int    `json:"vbtAllUp"`
-					VbtSingle         int    `json:"vbtSingle"`
-					VbtValue          int    `json:"vbtValue"`
-				} `json:"poolList"`
-				Remark     string `json:"remark"`
-				SellStatus int    `json:"sellStatus"`
-				Ttg        struct {
+				Ttg struct {
 					GoalLine   string `json:"goalLine"`
 					S0         string `json:"s0"`
 					S0F        string `json:"s0f"`
@@ -275,11 +245,10 @@ type ZcMatchesResponse struct {
 					UpdateDate string `json:"updateDate"`
 					UpdateTime string `json:"updateTime"`
 				} `json:"ttg"`
-				Vote struct {
-				} `json:"vote"`
 			} `json:"subMatchList"`
-			Weekday    string `json:"weekday"`
-			MatchCount int    `json:"matchCount"`
+			Weekday      string `json:"weekday"`
+			MatchCount   int    `json:"matchCount"`
+			MatchNumDate string `json:"matchNumDate"`
 		} `json:"matchInfoList"`
 		MatchDateList []struct {
 			BusinessDate   string `json:"businessDate"`
@@ -287,43 +256,6 @@ type ZcMatchesResponse struct {
 			MatchDate      string `json:"matchDate"`
 			MatchDateCn    string `json:"matchDateCn"`
 		} `json:"matchDateList"`
-		AllUpList struct {
-			HHAD []struct {
-				FValue        int    `json:"fValue"`
-				Formula       string `json:"formula"`
-				FormulaType   int    `json:"formulaType"`
-				MaxMatchCount int    `json:"maxMatchCount"`
-				PoolCode      string `json:"poolCode"`
-			} `json:"HHAD"`
-			CRS []struct {
-				FValue        int    `json:"fValue"`
-				Formula       string `json:"formula"`
-				FormulaType   int    `json:"formulaType"`
-				MaxMatchCount int    `json:"maxMatchCount"`
-				PoolCode      string `json:"poolCode"`
-			} `json:"CRS"`
-			TTG []struct {
-				FValue        int    `json:"fValue"`
-				Formula       string `json:"formula"`
-				FormulaType   int    `json:"formulaType"`
-				MaxMatchCount int    `json:"maxMatchCount"`
-				PoolCode      string `json:"poolCode"`
-			} `json:"TTG"`
-			HAFU []struct {
-				FValue        int    `json:"fValue"`
-				Formula       string `json:"formula"`
-				FormulaType   int    `json:"formulaType"`
-				MaxMatchCount int    `json:"maxMatchCount"`
-				PoolCode      string `json:"poolCode"`
-			} `json:"HAFU"`
-			HAD []struct {
-				FValue        int    `json:"fValue"`
-				Formula       string `json:"formula"`
-				FormulaType   int    `json:"formulaType"`
-				MaxMatchCount int    `json:"maxMatchCount"`
-				PoolCode      string `json:"poolCode"`
-			} `json:"HAD"`
-		} `json:"allUpList"`
 		LeagueList []struct {
 			LeagueId       string `json:"leagueId"`
 			LeagueName     string `json:"leagueName"`
