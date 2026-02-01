@@ -101,67 +101,7 @@ func (a Adapter) ListZjcMatches(index string) (types.Matches, error) {
 				types.OddsItem{Name: "让球客胜", Result: "0", Value: conv.Float64(hhadA)},
 			)
 
-			// 新 API 中 HAFU/CRS/TTG 的详细赔率在 oddsList 中可能为空，保留原有结构但值为空
-			y.Odds.HalfFullItems = append(y.Odds.HalfFullItems,
-				types.OddsItem{Name: "胜胜", Result: "3-3", Value: conv.Float64(x.Hafu.Hh)},
-				types.OddsItem{Name: "胜平", Result: "3-1", Value: conv.Float64(x.Hafu.Hd)},
-				types.OddsItem{Name: "胜负", Result: "3-0", Value: conv.Float64(x.Hafu.Ha)},
-				types.OddsItem{Name: "平胜", Result: "1-3", Value: conv.Float64(x.Hafu.Dh)},
-				types.OddsItem{Name: "平平", Result: "1-1", Value: conv.Float64(x.Hafu.Dd)},
-				types.OddsItem{Name: "平负", Result: "1-1", Value: conv.Float64(x.Hafu.Da)},
-				types.OddsItem{Name: "负胜", Result: "0-3", Value: conv.Float64(x.Hafu.Ah)},
-				types.OddsItem{Name: "负平", Result: "0-1", Value: conv.Float64(x.Hafu.Ad)},
-				types.OddsItem{Name: "负负", Result: "0-0", Value: conv.Float64(x.Hafu.Aa)},
-			)
-
-			y.Odds.GoalsItems = append(y.Odds.GoalsItems,
-				types.OddsItem{Name: "0球", Result: "0", Value: conv.Float64(x.Ttg.S0)},
-				types.OddsItem{Name: "1球", Result: "1", Value: conv.Float64(x.Ttg.S1)},
-				types.OddsItem{Name: "2球", Result: "2", Value: conv.Float64(x.Ttg.S2)},
-				types.OddsItem{Name: "3球", Result: "3", Value: conv.Float64(x.Ttg.S3)},
-				types.OddsItem{Name: "4球", Result: "4", Value: conv.Float64(x.Ttg.S4)},
-				types.OddsItem{Name: "5球", Result: "5", Value: conv.Float64(x.Ttg.S5)},
-				types.OddsItem{Name: "6球", Result: "6", Value: conv.Float64(x.Ttg.S6)},
-				types.OddsItem{Name: "7+球", Result: "7+", Value: conv.Float64(x.Ttg.S7)},
-			)
-
-			y.Odds.ScoreVictoryItems = append(y.Odds.ScoreVictoryItems,
-				types.OddsItem{Name: "1:0", Result: "1:0", Value: conv.Float64(x.Crs.S01S00)},
-				types.OddsItem{Name: "2:0", Result: "2:0", Value: conv.Float64(x.Crs.S02S00)},
-				types.OddsItem{Name: "2:1", Result: "2:1", Value: conv.Float64(x.Crs.S02S01)},
-				types.OddsItem{Name: "3:0", Result: "3:0", Value: conv.Float64(x.Crs.S03S00)},
-				types.OddsItem{Name: "3:1", Result: "3:1", Value: conv.Float64(x.Crs.S03S01)},
-				types.OddsItem{Name: "3:2", Result: "3:2", Value: conv.Float64(x.Crs.S03S02)},
-				types.OddsItem{Name: "4:0", Result: "4:0", Value: conv.Float64(x.Crs.S04S00)},
-				types.OddsItem{Name: "4:1", Result: "4:1", Value: conv.Float64(x.Crs.S04S01)},
-				types.OddsItem{Name: "4:2", Result: "4:2", Value: conv.Float64(x.Crs.S04S02)},
-				types.OddsItem{Name: "5:0", Result: "5:0", Value: conv.Float64(x.Crs.S05S00)},
-				types.OddsItem{Name: "5:1", Result: "5:1", Value: conv.Float64(x.Crs.S05S01)},
-				types.OddsItem{Name: "5:2", Result: "5:2", Value: conv.Float64(x.Crs.S05S02)},
-				types.OddsItem{Name: "胜其他", Result: "平其他", Value: conv.Float64(x.Crs.S1Sh)},
-			)
-
-			y.Odds.ScoreDogfallItems = append(y.Odds.ScoreDogfallItems,
-				types.OddsItem{Name: "0:0", Result: "0:0", Value: conv.Float64(x.Crs.S00S00)},
-				types.OddsItem{Name: "1:1", Result: "1:1", Value: conv.Float64(x.Crs.S01S01)},
-				types.OddsItem{Name: "2:2", Result: "2:2", Value: conv.Float64(x.Crs.S02S02)},
-				types.OddsItem{Name: "3:3", Result: "3:3", Value: conv.Float64(x.Crs.S03S03)},
-				types.OddsItem{Name: "平其他", Result: "平其他", Value: conv.Float64(x.Crs.S1Sd)},
-			)
-
-			y.Odds.ScoreDefeatItems = append(y.Odds.ScoreDefeatItems,
-				types.OddsItem{Name: "0:1", Result: "0:1", Value: conv.Float64(x.Crs.S00S01)},
-				types.OddsItem{Name: "0:2", Result: "0:2", Value: conv.Float64(x.Crs.S00S02)},
-				types.OddsItem{Name: "0:3", Result: "0:3", Value: conv.Float64(x.Crs.S00S03)},
-				types.OddsItem{Name: "1:3", Result: "1:3", Value: conv.Float64(x.Crs.S01S03)},
-				types.OddsItem{Name: "2:3", Result: "2:3", Value: conv.Float64(x.Crs.S02S03)},
-				types.OddsItem{Name: "0:4", Result: "0:4", Value: conv.Float64(x.Crs.S00S04)},
-				types.OddsItem{Name: "1:4", Result: "1:4", Value: conv.Float64(x.Crs.S01S04)},
-				types.OddsItem{Name: "2:4", Result: "2:4", Value: conv.Float64(x.Crs.S02S04)},
-				types.OddsItem{Name: "0:5", Result: "0:5", Value: conv.Float64(x.Crs.S00S05)},
-				types.OddsItem{Name: "1:5", Result: "1:5", Value: conv.Float64(x.Crs.S01S05)},
-				types.OddsItem{Name: "2:5", Result: "2:5", Value: conv.Float64(x.Crs.S02S05)},
-			)
+			// 新 API 不再在此接口提供 HAFU/CRS/TTG 的详细赔率，这些字段留空
 
 			matches = append(matches, &y)
 		}
