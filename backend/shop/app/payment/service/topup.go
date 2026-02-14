@@ -324,27 +324,9 @@ func (t *TopupService) AddTopUp(ctx context.Context, topupCategory, storeId, use
 		}
 
 		// Mock: Skip external payment provider and mark as success immediately
-		// payInfo, err := t.getXinshPayUrl(ctx, dbTopup.Id, dbTopup.StoreId, dbTopup.UserId, enum.TopupCategory_Buying.Value, orderId, enum.TopupCategory_Buying.Name, dbTopup.Amount, clientIp)
-		// if err != nil {
-		// 	return err
-		// }
-
-		// _, err = dbTopup.SetExtra(ctx, tx, dbTopup.Id, db.TopupExtra{
-		// 	PayUrl: payInfo.PayUrl,
-		// 	//PayMethod:    method,
-		// 	OrderId:      orderId,
-		// 	Category:     topupCategory,
-		// 	TradeNo:      payInfo.OrderNo,
-		// 	MerchantNo:   payInfo.MerchantNo,
-		// 	SellerId:     "",
-		// 	BuyerId:      "",
-		// 	BuyerLogonId: "",
-		// })
-		// if err != nil {
-		// 	return err
-		// }
-
-		// dbTopup.Extra.QrCode = payInfo.PayUrl
+		// Provide a dummy QR code because the frontend expects it if a topup object is returned
+		dbTopup.Extra.PayUrl = "mock-success"
+		dbTopup.Extra.QrCode = "mock-success"
 
 		return nil
 	})
