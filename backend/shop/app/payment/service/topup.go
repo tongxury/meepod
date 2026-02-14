@@ -4,6 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
+	"time"
+
 	"gitee.com/meepo/backend/kit/components/comp"
 	"gitee.com/meepo/backend/kit/components/sdk/helper"
 	"gitee.com/meepo/backend/kit/components/sdk/helper/mathd"
@@ -16,8 +19,6 @@ import (
 	"gitee.com/meepo/backend/shop/core/enum"
 	"gitee.com/meepo/backend/shop/core/types"
 	"github.com/go-pg/pg/v10"
-	"strings"
-	"time"
 )
 
 type TopupService struct {
@@ -275,7 +276,7 @@ func (t *TopupService) AddTopUp(ctx context.Context, topupCategory, storeId, use
 		UserId:   userId,
 		StoreId:  storeId,
 		Amount:   amount,
-		Status:   enum.TopupStatus_Submitted.Value,
+		Status:   enum.TopupStatus_Payed.Value,
 		Category: topupCategory,
 		Extra: &db.TopupExtra{
 			OrderId:  orderId,
@@ -286,46 +287,64 @@ func (t *TopupService) AddTopUp(ctx context.Context, topupCategory, storeId, use
 	slf.Debugw("AddTopUp ", slf.Reflect("dbTopup", dbTopup))
 
 	err := comp.SDK().Postgres().RunInTransaction(ctx, func(tx *pg.Tx) error {
-		_, err := dbTopup.Insert(ctx, tx)
+		inserted, err := dbTopup.Insert(ctx, tx)
 		if err != nil {
 			return err
 		}
 
-		payInfo, err := t.getXinshPayUrl(ctx, dbTopup.Id, dbTopup.StoreId, dbTopup.UserId, enum.TopupCategory_Buying.Value, orderId, enum.TopupCategory_Buying.Name, dbTopup.Amount, clientIp)
-		if err != nil {
-			return err
+		if inserted {
+			// 增加账本
+			err = new(db.Account).Incr(ctx, tx, userId, storeId, amount)
+			if err != nil {
+				return err
+			}
+
+			if topupCategory == enum.TopupCategory_Buying.Value {
+				// 消费记录
+				payment := db.Payment{
+					UserId:      userId,
+					StoreId:     storeId,
+					BizId:       orderId,
+					BizCategory: enum.BizCategory_Order.Value,
+					Category:    enum.PaymentCategory_BuyTicket.Value,
+					Amount:      amount,
+					Status:      enum.PaymentStatus_Payed.Value,
+				}
+				err = payment.Insert(ctx, tx)
+				if err != nil {
+					return err
+				}
+
+				// 修改订单状态
+				_, err = new(coredb.Order).UpdateToPayed(ctx, tx, orderId, false)
+				if err != nil {
+					return err
+				}
+			}
 		}
 
-		_, err = dbTopup.SetExtra(ctx, tx, dbTopup.Id, db.TopupExtra{
-			PayUrl: payInfo.PayUrl,
-			//PayMethod:    method,
-			OrderId:      orderId,
-			Category:     topupCategory,
-			TradeNo:      payInfo.OrderNo,
-			MerchantNo:   payInfo.MerchantNo,
-			SellerId:     "",
-			BuyerId:      "",
-			BuyerLogonId: "",
-		})
-		if err != nil {
-			return err
-		}
-		//
-		//_, err = dbTopup.UpdateExtra(ctx, tx, dbTopup.Id, "pay_params", conv.S2J(params))
-		//if err != nil {
-		//	return err
-		//}
+		// Mock: Skip external payment provider and mark as success immediately
+		// payInfo, err := t.getXinshPayUrl(ctx, dbTopup.Id, dbTopup.StoreId, dbTopup.UserId, enum.TopupCategory_Buying.Value, orderId, enum.TopupCategory_Buying.Name, dbTopup.Amount, clientIp)
+		// if err != nil {
+		// 	return err
+		// }
 
-		dbTopup.Extra.QrCode = payInfo.PayUrl
-		//if method == enum.PayMethod_Alipay.Value {
-		//	dbTopup.Extra.PayUrl = "alipays://platformapi/startapp?saId=10000007&qrcode=" + url.QueryEscape(payInfo.PayUrl)
-		//} else {
-		//	dbTopup.Extra.PayUrl = "weixin://scanqrcode?url=" + url.QueryEscape(payInfo.PayUrl)
-		//
-		//}
-		//weixin://scanqrcode?url=
+		// _, err = dbTopup.SetExtra(ctx, tx, dbTopup.Id, db.TopupExtra{
+		// 	PayUrl: payInfo.PayUrl,
+		// 	//PayMethod:    method,
+		// 	OrderId:      orderId,
+		// 	Category:     topupCategory,
+		// 	TradeNo:      payInfo.OrderNo,
+		// 	MerchantNo:   payInfo.MerchantNo,
+		// 	SellerId:     "",
+		// 	BuyerId:      "",
+		// 	BuyerLogonId: "",
+		// })
+		// if err != nil {
+		// 	return err
+		// }
 
-		//dbTopup.Extra.PayMethod = enum.PayMethod_QrCode.Value
+		// dbTopup.Extra.QrCode = payInfo.PayUrl
 
 		return nil
 	})
