@@ -9,7 +9,7 @@
     "test": "ENV=test expo start --web --clear",
     "prod": "ENV=producion expo start --web --clear",
     "build:web:test": "ENV=test npx expo export:web --clear",
-    "build:web:producion": "ENV=production npx expo export:web --clear",
+    "build:web:production": "ENV=production npx expo export:web --clear && rm -rf ../../../opt/projects/shop/dist/user && mv web-build ../../../opt/projects/shop/dist/user",
     "build:test:local": "eas build --local --profile test --platform android",
     "build:test:ios": "eas build --profile test --platform ios",
     "build:test:ios:local": "eas build --local --profile test --platform ios",
