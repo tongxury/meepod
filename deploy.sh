@@ -1,5 +1,7 @@
 #!/bin/bash
 
+git pull
+
 # Exit on any error
 set -e
 
